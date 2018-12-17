@@ -20,13 +20,14 @@ class Net(nn.Module):
         
         # As an example, you've been given a convolutional layer, which you may (but don't have to) change:
         # 1 input image channel (grayscale), 32 output channels/feature maps, 5x5 square convolution kernel
-        self.conv1 = nn.Conv2d(1, 32, 5)
+        self.conv1 = nn.Conv2d(1, 16, 5)
         
         ## Note that among the layers to add, consider including:
         # maxpooling layers, multiple conv layers, fully-connected layers, and other layers (such as dropout or batch normalization) to avoid overfitting
         self.pool = nn.MaxPool2d(2, 2)
-        
-        self.fc1 = nn.Linear(3872000, 136)
+        self.conv11 = nn.Conv2d(16, 32, 5)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(89888, 136)
         
 
         
@@ -35,9 +36,11 @@ class Net(nn.Module):
         ## x is the input image and, as an example, here you may choose to include a pool/conv step:
         ## x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv1(x)))
-        x = x.view(-1, 3872000)
+        x = self.pool1(F.relu(self.conv11(x)))
+        x = x.view(-1,89888)
+        #x = x.reshape(3872000,-1)
         x = F.relu(self.fc1(x))
-        #x = F.log_softmax(x, dim=1)
+        x = F.log_softmax(x, dim=1)
         #x = self.fc1(x)
         # a modified x, having gone through all the layers of your model, should be returned
         return x
